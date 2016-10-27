@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>请不要上传色情、暴力及反动图片</title>
+</head>
+<body>
+	<div>
+		<form method="POST" enctype="multipart/form-data" action="/idCardPicSrv/upload/0">
+			<table>
+				<tr><td>身份证正面</td><td><input type="file" name="idCardPic" /></td><td><input type="submit" value="上传正面" /></tr>
+			</table>
+		</form>
+	</div>
+	<div>
+		<form method="POST" enctype="multipart/form-data" action="/idCardPicSrv/upload/1">
+			<table>
+				<tr><td>身份证反面</td><td><input type="file" name="idCardPic" /></td><td><input type="submit" value="上传反面" /></td></tr>
+			</table>
+		</form>	
+	</div>	
+</body>
+</html>
