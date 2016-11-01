@@ -48,6 +48,61 @@ public class IdCardPicSrvCtrl {
 
 	private DefaultLobHandler lobHandler = new DefaultLobHandler();
 
+	@RequestMapping(path = "/showPicsAllAtOnce/{addrId}", method = RequestMethod.GET)
+	public void showPicsAllAtOnce(@PathVariable("addrId") String addrId,
+			HttpServletResponse response) {
+		try {
+			IdCardPicInfo idCardPicInfo = jdbcTemplate
+					.queryForObject(
+							"select identity_frontpic, identity_backpic from user_address where address_id = ?",
+							new Object[] { addrId },
+							new RowMapper<IdCardPicInfo>() {
+
+								@Override
+								public IdCardPicInfo mapRow(ResultSet rs,
+										int rowNum) throws SQLException {
+									return new IdCardPicInfo(rs
+											.getString("identity_frontpic"), rs
+											.getString("identity_backpic"));
+								}
+							});
+			if (idCardPicInfo != null) {
+				response.setContentType("text/html; charset=utf-8");
+				response.getOutputStream().print(
+						"<html><head><title>amituofo</title></head><body><img src=\"../showPic/"
+								+ idCardPicInfo.getUpperSide()
+								+ "?side=0\"/><img src=\"../showPic/"
+								+ idCardPicInfo.getReverseSide()
+								+ "?side=1\"/></body></html>");
+			} else {
+				response.setContentType("text/html; charset=utf-8");
+				response.getOutputStream()
+						.print("<html><head><title>amituofo</title></head><body><h1>No 身份证  associated with this address ["
+								+ addrId + "]</h1></body></html>");
+			}
+		} catch (IOException e) {
+
+		}
+	}
+
+	private class IdCardPicInfo {
+		private String upperSide;
+		private String reverseSide;
+
+		public IdCardPicInfo(String upperSide, String reverseSide) {
+			this.upperSide = upperSide;
+			this.reverseSide = reverseSide;
+		}
+
+		public String getUpperSide() {
+			return upperSide;
+		}
+
+		public String getReverseSide() {
+			return reverseSide;
+		}
+	}
+	
 	@RequestMapping(path = "/showPic/{idCard}", method = RequestMethod.GET)
 	public void showPic(@PathVariable("idCard") String idCard,
 			@QueryParam("side") String side, HttpServletResponse response) {
@@ -82,7 +137,7 @@ public class IdCardPicSrvCtrl {
 						}
 					});
 			if (results != null) {
-				String waterMark = "禁止发布";
+				String waterMark = " for haitao only ";
 
 				BufferedImage buffered = ImageIO.read(results.get(0));
 				Graphics2D g2d = (Graphics2D) buffered.getGraphics();
@@ -91,7 +146,7 @@ public class IdCardPicSrvCtrl {
 						AlphaComposite.SRC_OVER, 0.5f);
 				g2d.setComposite(alphaChannel);
 				g2d.setColor(Color.YELLOW);
-				g2d.setFont(new Font("黑体", Font.BOLD, 72));
+				g2d.setFont(new Font("Arial", Font.BOLD, 18));
 				FontMetrics fontMetrics = g2d.getFontMetrics();
 				Rectangle2D rect = fontMetrics.getStringBounds(waterMark, g2d);
 
